@@ -22,7 +22,6 @@ RUN sed -i '/src\/google\/protobuf\/compiler\/subprocess\./d' src/file_lists.cma
 RUN sed -i '/src\/google\/protobuf\/compiler\/command_line_interface\./d' src/file_lists.cmake
 
 ENV CMAKE_TOOLCHAIN_FILE=/opt/wasi-sdk/share/cmake/wasi-sdk-pthread.cmake
-# Enabling sjlj with WASM_WAMR allows compilation to succeed but no exception-handling instructions in the output
 ENV CFLAGS="-mllvm -wasm-enable-sjlj -D_WASI_EMULATED_MMAN -D_WASI_EMULATED_PROCESS_CLOCKS -D_WASI_EMULATED_SIGNAL -DABSL_HAVE_MMAP -DABSL_FORCE_THREAD_IDENTITY_MODE=1"
 ENV CXXFLAGS="$CFLAGS -fno-exceptions"
 ENV LDFLAGS="-lsetjmp -lwasi-emulated-process-clocks -lwasi-emulated-mman -lwasi-emulated-signal -Wl,--max-memory=4294967296"

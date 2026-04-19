@@ -21,7 +21,8 @@ func Run(name string, wasmBin []byte) {
 	ctx := context.Background()
 	ctx = experimental.WithMemoryAllocator(ctx, allocator.NewNonMoving())
 
-	rt := wazero.NewRuntimeWithConfig(ctx, wazero.NewRuntimeConfig().WithCoreFeatures(api.CoreFeaturesV2|experimental.CoreFeaturesThreads))
+	rt := wazero.NewRuntimeWithConfig(ctx, wazero.NewRuntimeConfig().
+		WithCoreFeatures(api.CoreFeaturesV2|experimental.CoreFeaturesThreads|experimental.CoreFeaturesExceptionHandling))
 
 	wasi_snapshot_preview1.MustInstantiate(ctx, rt)
 

@@ -23,9 +23,9 @@ RUN sed -i '/src\/google\/protobuf\/compiler\/command_line_interface\./d' src/fi
 
 ENV CMAKE_TOOLCHAIN_FILE=/opt/wasi-sdk/share/cmake/wasi-sdk-pthread.cmake
 # Enabling sjlj with WASM_WAMR allows compilation to succeed but no exception-handling instructions in the output
-ENV CFLAGS="-mllvm -wasm-enable-sjlj -DWASM_WAMR -D_WASI_EMULATED_MMAN -D_WASI_EMULATED_PROCESS_CLOCKS -D_WASI_EMULATED_SIGNAL -DABSL_HAVE_MMAP -DABSL_FORCE_THREAD_IDENTITY_MODE=1"
+ENV CFLAGS="-mllvm -wasm-enable-sjlj -D_WASI_EMULATED_MMAN -D_WASI_EMULATED_PROCESS_CLOCKS -D_WASI_EMULATED_SIGNAL -DABSL_HAVE_MMAP -DABSL_FORCE_THREAD_IDENTITY_MODE=1"
 ENV CXXFLAGS="$CFLAGS -fno-exceptions"
-ENV LDFLAGS="-lwasi-emulated-process-clocks -lwasi-emulated-mman -lwasi-emulated-signal -Wl,--max-memory=4294967296"
+ENV LDFLAGS="-lsetjmp -lwasi-emulated-process-clocks -lwasi-emulated-mman -lwasi-emulated-signal -Wl,--max-memory=4294967296"
 
 RUN cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS="$CFLAGS" -DCMAKE_CXX_FLAGS="$CXXFLAGS" -DCMAKE_EXE_LINKER_FLAGS="$LDFLAGS" -Dprotobuf_BUILD_TESTS=off -S . -B build
 
@@ -35,6 +35,6 @@ RUN cd build/_deps/absl-src/ && patch -p1 < ../../../patch-absl.txt
 RUN cmake --build build --target plugins protoc-gen-upb protoc-gen-upbdefs protoc-gen-upb_minitable -j 2
 
 SHELL ["/bin/bash", "-c"]
-RUN for f in build/protoc-gen-*[^0-9]; do wasm-opt -o "$f".wasm --flatten --rereloop --converge -O3 "$f"; done
+RUN for f in build/protoc-gen-*[^0-9]; do wasm-opt -o "$f".wasm --flatten --converge -O3 "$f"; done
 
 CMD ["bash", "-c", "cp build/protoc-gen-*.wasm /out/"]
